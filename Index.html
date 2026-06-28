@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Baby Daily Monitoring Dashboard - Track your newborn's feedings, sleep, diapers, growth, and more." />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BabyLog" />
+  <title>BabyLog — Baby Daily Monitoring Dashboard</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet" />
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Disclaimer Toast -->
+<div class="disclaimer-banner">
+  <i class="fa-solid fa-circle-info me-2"></i>
+  <span>For personal monitoring only. Not a medical tool. Always consult your pediatrician.</span>
+  <button class="btn-close-disclaimer" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>
+</div>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <span class="logo-icon">🍼</span>
+      <span class="logo-text">BabyLog</span>
+    </div>
+    <button class="sidebar-close d-lg-none" id="sidebarClose" aria-label="Close navigation menu"><i class="fa fa-times"></i></button>
+  </div>
+
+  <div class="baby-info-mini" id="sidebarBabyInfo">
+    <div class="baby-avatar">👶</div>
+    <div>
+      <div class="baby-name-mini" id="navBabyName">Baby</div>
+      <div class="baby-age-mini" id="navBabyAge">—</div>
+    </div>
+  </div>
+
+  <ul class="nav-list" role="navigation" aria-label="Main navigation">
+    <li class="nav-item-label">Main</li>
+    <li><a class="nav-link active" href="#" data-section="dashboard"><i class="fa fa-home"></i> Dashboard</a></li>
+    <li class="nav-item-label">Tracking</li>
+    <li><a class="nav-link" href="#" data-section="feeding"><i class="fa fa-droplet"></i> Feeding</a></li>
+    <li><a class="nav-link" href="#" data-section="sleep"><i class="fa fa-moon"></i> Sleep</a></li>
+    <li><a class="nav-link" href="#" data-section="diaper"><i class="fa fa-baby"></i> Diaper</a></li>
+    <li><a class="nav-link" href="#" data-section="growth"><i class="fa fa-chart-line"></i> Growth</a></li>
+    <li><a class="nav-link" href="#" data-section="temperature"><i class="fa fa-thermometer-half"></i> Temperature</a></li>
+    <li class="nav-item-label">Health</li>
+    <li><a class="nav-link" href="#" data-section="medicine"><i class="fa fa-pills"></i> Medicine & Vitamins</a></li>
+    <li><a class="nav-link" href="#" data-section="vaccination"><i class="fa fa-syringe"></i> Vaccination</a></li>
+    <li><a class="nav-link" href="#" data-section="doctor"><i class="fa fa-stethoscope"></i> Doctor Visits</a></li>
+    <li class="nav-item-label">Journal</li>
+    <li><a class="nav-link" href="#" data-section="journal"><i class="fa fa-book-open"></i> Baby Journal</a></li>
+    <li><a class="nav-link" href="#" data-section="milestones"><i class="fa fa-star"></i> Milestones</a></li>
+    <li class="nav-item-label">System</li>
+    <li><a class="nav-link" href="#" data-section="analytics"><i class="fa fa-chart-bar"></i> Analytics</a></li>
+    <li><a class="nav-link" href="#" data-section="export"><i class="fa fa-file-export"></i> Export / Import</a></li>
+    <li><a class="nav-link" href="#" data-section="settings"><i class="fa fa-gear"></i> Settings</a></li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+      <i class="fa fa-sun" id="themeIcon"></i>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Main Content -->
+<div class="main-wrapper">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <button class="btn-hamburger" id="hamburgerBtn" aria-label="Open navigation menu" aria-expanded="false"><i class="fa fa-bars" aria-hidden="true"></i></button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <div class="search-wrap">
+        <input type="text" class="search-input" id="globalSearch" role="searchbox" aria-label="Search all records" autocomplete="off" placeholder="Search records…" />
+        <i class="fa fa-search search-icon"></i>
+      </div>
+      <div class="reminders-bell" id="reminderBell" aria-label="View reminders" aria-haspopup="true" title="Reminders">
+        <i class="fa fa-bell"></i>
+        <span class="bell-badge" id="reminderCount" style="display:none">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Sections -->
+  <main class="content-area">
+
+    <!-- ====== DASHBOARD ====== -->
+    <section class="section active" id="section-dashboard">
+      <div class="section-hero">
+        <div class="hero-left">
+          <div class="hero-avatar">👶</div>
+          <div>
+            <h1 class="hero-name" id="heroBabyName">Baby</h1>
+            <div class="hero-meta">
+              <span id="heroBabyAge" class="hero-age">—</span>
+              <span class="hero-dot">·</span>
+              <span id="heroBirthday" class="hero-birthday">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="hero-datetime">
+            <div class="hero-time" id="heroTime">00:00</div>
+            <div class="hero-date" id="heroDate">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="cards-grid" id="summaryCards">
+        <div class="dash-card card-feeding">
+          <div class="dash-card-icon"><i class="fa fa-droplet"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="todayFeedings">0</div>
+            <div class="dash-card-label">Feedings Today</div>
+          </div>
+        </div>
+        <div class="dash-card card-milk">
+          <div class="dash-card-icon"><i class="fa fa-bottle-water"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="todayMilk">0 ml</div>
+            <div class="dash-card-label">Total Milk Today</div>
+          </div>
+        </div>
+        <div class="dash-card card-diaper-wet">
+          <div class="dash-card-icon"><i class="fa fa-tint"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="todayWet">0</div>
+            <div class="dash-card-label">Wet Diapers</div>
+          </div>
+        </div>
+        <div class="dash-card card-diaper-dirty">
+          <div class="dash-card-icon"><i class="fa fa-poop"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="todayDirty">0</div>
+            <div class="dash-card-label">Dirty Diapers</div>
+          </div>
+        </div>
+        <div class="dash-card card-sleep">
+          <div class="dash-card-icon"><i class="fa fa-moon"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="todaySleep">0h 0m</div>
+            <div class="dash-card-label">Total Sleep</div>
+          </div>
+        </div>
+        <div class="dash-card card-last-feed">
+          <div class="dash-card-icon"><i class="fa fa-clock"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="lastFeeding">—</div>
+            <div class="dash-card-label">Last Feeding</div>
+          </div>
+        </div>
+        <div class="dash-card card-next-feed">
+          <div class="dash-card-icon"><i class="fa fa-hourglass-half"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="nextFeeding">—</div>
+            <div class="dash-card-label">Next Feeding Est.</div>
+          </div>
+        </div>
+        <div class="dash-card card-last-sleep">
+          <div class="dash-card-icon"><i class="fa fa-bed"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="lastSleep">—</div>
+            <div class="dash-card-label">Last Sleep</div>
+          </div>
+        </div>
+        <div class="dash-card card-weight">
+          <div class="dash-card-icon"><i class="fa fa-weight-scale"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="currentWeight">—</div>
+            <div class="dash-card-label">Current Weight</div>
+          </div>
+        </div>
+        <div class="dash-card card-temp">
+          <div class="dash-card-icon"><i class="fa fa-thermometer-half"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="currentTemp">—</div>
+            <div class="dash-card-label">Temperature</div>
+          </div>
+        </div>
+        <div class="dash-card card-vaccine">
+          <div class="dash-card-icon"><i class="fa fa-syringe"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="nextVaccine">—</div>
+            <div class="dash-card-label">Next Vaccine</div>
+          </div>
+        </div>
+        <div class="dash-card card-vitamin">
+          <div class="dash-card-icon"><i class="fa fa-pills"></i></div>
+          <div class="dash-card-body">
+            <div class="dash-card-value" id="nextVitamin">—</div>
+            <div class="dash-card-label">Next Vitamin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-card-title">Feedings Today</div>
+          <canvas id="chartFeedingToday" height="160"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Sleep This Week</div>
+          <canvas id="chartSleepWeek" height="160"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Diapers This Week</div>
+          <canvas id="chartDiaperWeek" height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- Reminders -->
+      <div class="reminders-section" id="dashReminders"></div>
+    </section>
+
+    <!-- ====== FEEDING ====== -->
+    <section class="section" id="section-feeding">
+      <div class="section-header">
+        <h2><i class="fa fa-droplet me-2"></i>Feeding Tracker</h2>
+        <button class="btn-add" onclick="App.openModal('feeding')"><i class="fa fa-plus"></i> Add Feeding</button>
+      </div>
+      <div class="stats-row" id="feedingStats"></div>
+      <div class="filter-bar">
+        <input type="date" class="filter-date" id="feedingFilterDate" onchange="App.renderFeeding()" />
+        <select class="filter-select" id="feedingFilterType" onchange="App.renderFeeding()">
+          <option value="">All Types</option>
+          <option value="Left Breast">Left Breast</option>
+          <option value="Right Breast">Right Breast</option>
+          <option value="Bottle Breastmilk">Bottle Breastmilk</option>
+          <option value="Formula">Formula</option>
+        </select>
+        <button class="btn-clear-filter" onclick="App.clearFilter('feeding')"><i class="fa fa-xmark"></i></button>
+      </div>
+      <div class="records-list" id="feedingList"></div>
+    </section>
+
+    <!-- ====== SLEEP ====== -->
+    <section class="section" id="section-sleep">
+      <div class="section-header">
+        <h2><i class="fa fa-moon me-2"></i>Sleep Tracker</h2>
+        <button class="btn-add" onclick="App.openModal('sleep')"><i class="fa fa-plus"></i> Add Sleep</button>
+      </div>
+      <div class="stats-row" id="sleepStats"></div>
+      <div class="filter-bar">
+        <input type="date" class="filter-date" id="sleepFilterDate" onchange="App.renderSleep()" />
+        <button class="btn-clear-filter" onclick="App.clearFilter('sleep')"><i class="fa fa-xmark"></i></button>
+      </div>
+      <div class="records-list" id="sleepList"></div>
+    </section>
+
+    <!-- ====== DIAPER ====== -->
+    <section class="section" id="section-diaper">
+      <div class="section-header">
+        <h2><i class="fa fa-baby me-2"></i>Diaper Tracker</h2>
+        <button class="btn-add" onclick="App.openModal('diaper')"><i class="fa fa-plus"></i> Add Diaper</button>
+      </div>
+      <div class="stats-row" id="diaperStats"></div>
+      <div class="filter-bar">
+        <input type="date" class="filter-date" id="diaperFilterDate" onchange="App.renderDiaper()" />
+        <button class="btn-clear-filter" onclick="App.clearFilter('diaper')"><i class="fa fa-xmark"></i></button>
+      </div>
+      <div class="records-list" id="diaperList"></div>
+    </section>
+
+    <!-- ====== GROWTH ====== -->
+    <section class="section" id="section-growth">
+      <div class="section-header">
+        <h2><i class="fa fa-chart-line me-2"></i>Growth Tracker</h2>
+        <button class="btn-add" onclick="App.openModal('growth')"><i class="fa fa-plus"></i> Add Measurement</button>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-card-title">Weight (kg)</div><canvas id="chartWeight" height="160"></canvas></div>
+        <div class="chart-card"><div class="chart-card-title">Height (cm)</div><canvas id="chartHeight" height="160"></canvas></div>
+        <div class="chart-card"><div class="chart-card-title">Head Circumference (cm)</div><canvas id="chartHead" height="160"></canvas></div>
+      </div>
+      <div class="records-list" id="growthList"></div>
+    </section>
+
+    <!-- ====== TEMPERATURE ====== -->
+    <section class="section" id="section-temperature">
+      <div class="section-header">
+        <h2><i class="fa fa-thermometer-half me-2"></i>Temperature Tracker</h2>
+        <button class="btn-add" onclick="App.openModal('temperature')"><i class="fa fa-plus"></i> Add Temperature</button>
+      </div>
+      <div class="chart-card mb-3"><div class="chart-card-title">Temperature History</div><canvas id="chartTemp" height="160"></canvas></div>
+      <div class="records-list" id="temperatureList"></div>
+    </section>
+
+    <!-- ====== MEDICINE ====== -->
+    <section class="section" id="section-medicine">
+      <div class="section-header">
+        <h2><i class="fa fa-pills me-2"></i>Medicine & Vitamins</h2>
+        <button class="btn-add" onclick="App.openModal('medicine')"><i class="fa fa-plus"></i> Add Entry</button>
+      </div>
+      <div class="stats-row" id="medicineStats"></div>
+      <div class="records-list" id="medicineList"></div>
+    </section>
+
+    <!-- ====== VACCINATION ====== -->
+    <section class="section" id="section-vaccination">
+      <div class="section-header">
+        <h2><i class="fa fa-syringe me-2"></i>Vaccination Tracker</h2>
+        <button class="btn-add" onclick="App.openModal('vaccination')"><i class="fa fa-plus"></i> Add Vaccine</button>
+      </div>
+      <div class="vaccination-progress" id="vaccineProgress"></div>
+      <div class="records-list" id="vaccinationList"></div>
+    </section>
+
+    <!-- ====== DOCTOR ====== -->
+    <section class="section" id="section-doctor">
+      <div class="section-header">
+        <h2><i class="fa fa-stethoscope me-2"></i>Doctor Visits</h2>
+        <button class="btn-add" onclick="App.openModal('doctor')"><i class="fa fa-plus"></i> Add Visit</button>
+      </div>
+      <div class="records-list" id="doctorList"></div>
+    </section>
+
+    <!-- ====== JOURNAL ====== -->
+    <section class="section" id="section-journal">
+      <div class="section-header">
+        <h2><i class="fa fa-book-open me-2"></i>Baby Journal</h2>
+        <button class="btn-add" onclick="App.openModal('journal')"><i class="fa fa-plus"></i> Add Entry</button>
+      </div>
+      <div class="records-list" id="journalList"></div>
+    </section>
+
+    <!-- ====== MILESTONES ====== -->
+    <section class="section" id="section-milestones">
+      <div class="section-header">
+        <h2><i class="fa fa-star me-2"></i>Milestones</h2>
+        <button class="btn-add" onclick="App.openModal('milestone')"><i class="fa fa-plus"></i> Add Milestone</button>
+      </div>
+      <div class="milestones-grid" id="milestonesGrid"></div>
+    </section>
+
+    <!-- ====== ANALYTICS ====== -->
+    <section class="section" id="section-analytics">
+      <div class="section-header">
+        <h2><i class="fa fa-chart-bar me-2"></i>Analytics</h2>
+      </div>
+      <div class="analytics-filter" role="group" aria-label="Time period filter">
+        <button class="btn-period active" data-period="week" aria-pressed="true">This Week</button>
+        <button class="btn-period" data-period="month" aria-pressed="false">This Month</button>
+        <button class="btn-period" data-period="all" aria-pressed="false">All Time</button>
+      </div>
+      <div id="analyticsWidgets" class="analytics-widgets-area"></div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-card-title">Daily Feeding (ml)</div><canvas id="chartAnalyticsFeeding" height="180"></canvas></div>
+        <div class="chart-card"><div class="chart-card-title">Sleep Hours</div><canvas id="chartAnalyticsSleep" height="180"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-card-title">Diaper Changes</div><canvas id="chartAnalyticsDiaper" height="180"></canvas></div>
+        <div class="chart-card"><div class="chart-card-title">Temperature Trend</div><canvas id="chartAnalyticsTemp" height="180"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-card-title">Weight Progress (kg)</div><canvas id="chartAnalyticsWeight" height="180"></canvas></div>
+        <div class="chart-card"><div class="chart-card-title">Medicine Compliance</div><canvas id="chartAnalyticsMeds" height="180"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ====== EXPORT / IMPORT ====== -->
+    <section class="section" id="section-export">
+      <div class="section-header">
+        <h2><i class="fa fa-file-export me-2"></i>Export & Import</h2>
+      </div>
+      <div class="export-grid">
+        <div class="export-card">
+          <i class="fa fa-file-excel export-icon"></i>
+          <div class="export-title">Excel Workbook</div>
+          <div class="export-desc">All data in one .xlsx file with multiple sheets</div>
+          <button class="btn-export" onclick="ExportManager.exportExcel()">Download Excel</button>
+        </div>
+        <div class="export-card">
+          <i class="fa fa-file-csv export-icon"></i>
+          <div class="export-title">CSV Files</div>
+          <div class="export-desc">Individual CSV files per module as a ZIP</div>
+          <button class="btn-export" onclick="ExportManager.exportCSVAll()">Download CSVs</button>
+        </div>
+        <div class="export-card">
+          <i class="fa fa-file-pdf export-icon"></i>
+          <div class="export-title">PDF Report</div>
+          <div class="export-desc">Today's summary as a printable PDF</div>
+          <button class="btn-export" onclick="ExportManager.exportPDF('today')">Today's Report</button>
+          <button class="btn-export mt-2" onclick="ExportManager.exportPDF('week')">Weekly Report</button>
+          <button class="btn-export mt-2" onclick="ExportManager.exportPDF('month')">Monthly Report</button>
+        </div>
+        <div class="export-card">
+          <i class="fa fa-database export-icon"></i>
+          <div class="export-title">JSON Backup</div>
+          <div class="export-desc">Full data backup as JSON</div>
+          <button class="btn-export" onclick="ExportManager.exportJSON()">Backup All Data</button>
+        </div>
+      </div>
+      <div class="export-card" style="grid-column:span 1">
+          <i class="fa fa-print export-icon" aria-hidden="true"></i>
+          <div class="export-title">Print Report</div>
+          <div class="export-desc">Opens your browser print dialog with a clean formatted report</div>
+          <button class="btn-export" onclick="ExportManager.printReport('today')">Print Today</button>
+          <button class="btn-export mt-2" onclick="ExportManager.printReport('week')">Print This Week</button>
+        </div>
+      </div><!-- /export-grid -->
+      <div class="import-section">
+        <h3 class="import-title"><i class="fa fa-file-import me-2"></i>Import Data</h3>
+        <div class="import-grid">
+          <div class="import-card">
+            <label class="import-label">Import JSON Backup</label>
+            <input type="file" accept=".json" id="importJSON" onchange="ImportManager.importJSON(event)" class="file-input" />
+            <label for="importJSON" class="btn-import"><i class="fa fa-upload me-2"></i>Choose JSON File</label>
+          </div>
+          <div class="import-card">
+            <label class="import-label">Import Excel (.xlsx)</label>
+            <input type="file" accept=".xlsx" id="importExcel" onchange="ImportManager.importExcel(event)" class="file-input" />
+            <label for="importExcel" class="btn-import"><i class="fa fa-upload me-2"></i>Choose Excel File</label>
+          </div>
+          <div class="import-card">
+            <label class="import-label">Import CSV (Feeding)</label>
+            <input type="file" accept=".csv" id="importCSV" onchange="ImportManager.importCSV(event, 'feeding')" class="file-input" />
+            <label for="importCSV" class="btn-import"><i class="fa fa-upload me-2"></i>Choose CSV File</label>
+          </div>
+        </div>
+        <div class="danger-zone">
+          <h4><i class="fa fa-triangle-exclamation me-2"></i>Danger Zone</h4>
+          <button class="btn-danger" onclick="App.clearAllData()"><i class="fa fa-trash me-2"></i>Clear All Data</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== SETTINGS ====== -->
+    <section class="section" id="section-settings">
+      <div class="section-header">
+        <h2><i class="fa fa-gear me-2"></i>Settings</h2>
+      </div>
+      <div class="settings-grid">
+        <div class="settings-card">
+          <h3 class="settings-group-title">Baby Profile</h3>
+          <div class="form-group">
+            <label>Baby's Name</label>
+            <input type="text" id="settingBabyName" class="form-control" placeholder="e.g. Sofia" autocomplete="given-name" />
+          </div>
+          <div class="form-group mt-3">
+            <label>Birthday</label>
+            <input type="date" id="settingBirthday" class="form-control" />
+          </div>
+          <div class="form-group mt-3">
+            <label>Current Weight (kg)</label>
+            <input type="number" id="settingWeight" class="form-control" step="0.01" placeholder="e.g. 3.5" />
+          </div>
+          <button class="btn-save mt-3" onclick="App.saveSettings()"><i class="fa fa-save me-2"></i>Save Profile</button>
+        </div>
+        <div class="settings-card">
+          <h3 class="settings-group-title">Preferences</h3>
+          <div class="form-group">
+            <label>Default Feeding Interval (hours)</label>
+            <input type="number" id="settingFeedInterval" class="form-control" value="2" min="1" max="6" />
+          </div>
+          <div class="form-group mt-3">
+            <label>Temperature Unit</label>
+            <select id="settingTempUnit" class="form-control">
+              <option value="C">Celsius (°C)</option>
+              <option value="F">Fahrenheit (°F)</option>
+            </select>
+          </div>
+          <div class="form-group mt-3">
+            <label class="toggle-label">
+              <span>Notification Sounds</span>
+              <input type="checkbox" id="settingSound" class="toggle-input" checked />
+              <span class="toggle-switch"></span>
+            </label>
+          </div>
+          <button class="btn-save mt-3" onclick="App.saveSettings()"><i class="fa fa-save me-2"></i>Save Preferences</button>
+        </div>
+        <div class="settings-card">
+          <h3 class="settings-group-title">Load Sample Data</h3>
+          <p class="settings-desc">Load realistic sample data to explore the app.</p>
+          <button class="btn-save" onclick="App.loadSampleData()"><i class="fa fa-database me-2"></i>Load Sample Data</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /main-wrapper -->
+
+<!-- Floating Quick Add Button -->
+<button class="fab" id="fabBtn" title="Quick Add" aria-label="Quick Add" aria-haspopup="true" aria-expanded="false">
+  <i class="fa fa-plus"></i>
+</button>
+<div class="fab-menu" id="fabMenu">
+  <button class="fab-item" onclick="App.openModal('feeding')"><i class="fa fa-droplet"></i> Feeding</button>
+  <button class="fab-item" onclick="App.openModal('sleep')"><i class="fa fa-moon"></i> Sleep</button>
+  <button class="fab-item" onclick="App.openModal('diaper')"><i class="fa fa-baby"></i> Diaper</button>
+  <button class="fab-item" onclick="App.openModal('temperature')"><i class="fa fa-thermometer-half"></i> Temp</button>
+  <button class="fab-item" onclick="App.openModal('medicine')"><i class="fa fa-pills"></i> Medicine</button>
+</div>
+
+<!-- ====== MODALS ====== -->
+
+<!-- Feeding Modal -->
+<div class="modal fade" id="modalFeeding" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-droplet me-2"></i>Log Feeding</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Date</label><input type="date" id="fDate" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Start Time</label><input type="time" id="fStart" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">End Time</label><input type="time" id="fEnd" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Feeding Type</label>
+            <select id="fType" class="form-control">
+              <option>Left Breast</option><option>Right Breast</option>
+              <option>Bottle Breastmilk</option><option>Formula</option>
+            </select>
+          </div>
+          <div class="col-6"><label class="form-label">Milk Amount (ml)</label><input type="number" id="fAmount" class="form-control" placeholder="0" /></div>
+          <div class="col-6"><label class="form-label">Medicine Given</label><input type="text" id="fMedicine" class="form-control" placeholder="Optional" /></div>
+          <div class="col-4">
+            <label class="check-label"><input type="checkbox" id="fBurped" /> Burped</label>
+          </div>
+          <div class="col-4">
+            <label class="check-label"><input type="checkbox" id="fSpitUp" /> Spit Up</label>
+          </div>
+          <div class="col-4">
+            <label class="check-label"><input type="checkbox" id="fVomited" /> Vomited</label>
+          </div>
+          <div class="col-12"><div id="feedDurationPreview" class="duration-preview" aria-live="polite"></div></div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="fNotes" class="form-control" rows="2" placeholder="Any observations..."></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveFeeding()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sleep Modal -->
+<div class="modal fade" id="modalSleep" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-moon me-2"></i>Log Sleep</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Sleep Start</label><input type="datetime-local" id="sStart" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Wake Time</label><input type="datetime-local" id="sEnd" class="form-control" /></div>
+          <div class="col-12"><label class="form-label">Sleep Quality</label>
+            <select id="sQuality" class="form-control">
+              <option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option>
+            </select>
+          </div>
+          <div class="col-12"><div id="sleepDurationPreview" class="duration-preview" aria-live="polite"></div></div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="sNotes" class="form-control" rows="2" placeholder="How did baby sleep?"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveSleep()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Diaper Modal -->
+<div class="modal fade" id="modalDiaper" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-baby me-2"></i>Log Diaper Change</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Date</label><input type="date" id="dDate" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Time</label><input type="time" id="dTime" class="form-control" /></div>
+          <div class="col-12"><label class="form-label">Type</label>
+            <div class="diaper-type-btns">
+              <button type="button" class="diaper-btn active" data-type="wet" onclick="App.selectDiaperType('wet', this)">💧 Wet</button>
+              <button type="button" class="diaper-btn" data-type="dirty" onclick="App.selectDiaperType('dirty', this)">💩 Dirty</button>
+              <button type="button" class="diaper-btn" data-type="both" onclick="App.selectDiaperType('both', this)">🔄 Both</button>
+            </div>
+            <input type="hidden" id="dType" value="wet" />
+          </div>
+          <div class="col-6"><label class="form-label">Stool Color</label>
+            <select id="dColor" class="form-control">
+              <option value="">N/A</option><option>Yellow</option><option>Green</option>
+              <option>Brown</option><option>Black</option><option>Red</option><option>White</option>
+            </select>
+          </div>
+          <div class="col-6"><label class="form-label">Consistency</label>
+            <select id="dConsistency" class="form-control">
+              <option value="">N/A</option><option>Watery</option><option>Seedy</option>
+              <option>Soft</option><option>Formed</option><option>Hard</option>
+            </select>
+          </div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="dNotes" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveDiaper()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Growth Modal -->
+<div class="modal fade" id="modalGrowth" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-chart-line me-2"></i>Log Measurement</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label">Date</label><input type="date" id="gDate" class="form-control" /></div>
+          <div class="col-4"><label class="form-label">Weight (kg)</label><input type="number" id="gWeight" class="form-control" step="0.01" /></div>
+          <div class="col-4"><label class="form-label">Height (cm)</label><input type="number" id="gHeight" class="form-control" step="0.1" /></div>
+          <div class="col-4"><label class="form-label">Head Circ. (cm)</label><input type="number" id="gHead" class="form-control" step="0.1" /></div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="gNotes" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveGrowth()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Temperature Modal -->
+<div class="modal fade" id="modalTemperature" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-thermometer-half me-2"></i>Log Temperature</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Date</label><input type="date" id="tDate" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Time</label><input type="time" id="tTime" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Temperature (°C)</label><input type="number" id="tTemp" class="form-control" step="0.1" placeholder="36.5" /></div>
+          <div class="col-6"><label class="form-label">Method</label>
+            <select id="tMethod" class="form-control">
+              <option>Armpit</option><option>Ear</option><option>Rectal</option>
+            </select>
+          </div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="tNotes" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveTemperature()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Medicine Modal -->
+<div class="modal fade" id="modalMedicine" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-pills me-2"></i>Log Medicine / Vitamin</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Date</label><input type="date" id="mDate" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Time</label><input type="time" id="mTime" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Medicine/Vitamin Name</label><input type="text" id="mName" class="form-control" placeholder="e.g. Vitamin D" /></div>
+          <div class="col-6"><label class="form-label">Type</label>
+            <select id="mType" class="form-control">
+              <option>Medicine</option><option>Vitamin</option><option>Supplement</option>
+            </select>
+          </div>
+          <div class="col-6"><label class="form-label">Dose</label><input type="text" id="mDose" class="form-control" placeholder="e.g. 0.5ml" /></div>
+          <div class="col-6">
+            <label class="check-label mt-4"><input type="checkbox" id="mCompleted" checked /> Completed</label>
+          </div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="mNotes" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveMedicine()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vaccination Modal -->
+<div class="modal fade" id="modalVaccination" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-syringe me-2"></i>Log Vaccine</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label">Vaccine Name</label><input type="text" id="vName" class="form-control" placeholder="e.g. BCG" /></div>
+          <div class="col-6"><label class="form-label">Due Date</label><input type="date" id="vDue" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Completed Date</label><input type="date" id="vCompleted" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Hospital/Clinic</label><input type="text" id="vHospital" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Doctor</label><input type="text" id="vDoctor" class="form-control" /></div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="vNotes" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveVaccination()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Doctor Modal -->
+<div class="modal fade" id="modalDoctor" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-stethoscope me-2"></i>Log Doctor Visit</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Date</label><input type="date" id="drDate" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Follow-up Date</label><input type="date" id="drFollowup" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Doctor</label><input type="text" id="drDoctor" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Hospital/Clinic</label><input type="text" id="drHospital" class="form-control" /></div>
+          <div class="col-12"><label class="form-label">Diagnosis</label><input type="text" id="drDiagnosis" class="form-control" /></div>
+          <div class="col-12"><label class="form-label">Prescription</label><textarea id="drPrescription" class="form-control" rows="2"></textarea></div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="drNotes" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveDoctor()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Journal Modal -->
+<div class="modal fade" id="modalJournal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-book-open me-2"></i>Journal Entry</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">Date</label><input type="date" id="jDate" class="form-control" /></div>
+          <div class="col-6"><label class="form-label">Mood</label>
+            <select id="jMood" class="form-control">
+              <option>😊 Happy</option><option>😴 Sleepy</option><option>😢 Fussy</option>
+              <option>😌 Calm</option><option>🤒 Unwell</option><option>😁 Playful</option>
+            </select>
+          </div>
+          <div class="col-12"><label class="form-label">Daily Notes</label><textarea id="jNotes" class="form-control" rows="3"></textarea></div>
+          <div class="col-12"><label class="form-label">Milestones</label><input type="text" id="jMilestones" class="form-control" placeholder="e.g. First smile today!" /></div>
+          <div class="col-12"><label class="form-label">Photo URL</label><input type="url" id="jPhoto" class="form-control" placeholder="https://…" /></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveJournal()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Milestone Modal -->
+<div class="modal fade" id="modalMilestone" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-header-custom">
+        <h5><i class="fa fa-star me-2"></i>Log Milestone</h5>
+        <button type="button" class="btn-modal-close" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label">Milestone</label>
+            <select id="msName" class="form-control">
+              <option>First Smile</option><option>Lift Head</option><option>Roll Over</option>
+              <option>Sit Up</option><option>Crawl</option><option>Stand</option>
+              <option>Walk</option><option>First Tooth</option><option>First Word</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="col-12" id="msCustomWrap" style="display:none">
+            <label class="form-label">Custom Milestone</label>
+            <input type="text" id="msCustom" class="form-control" />
+          </div>
+          <div class="col-12"><label class="form-label">Date Achieved</label><input type="date" id="msDate" class="form-control" /></div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="msNotes" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer-custom">
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-modal-save" onclick="App.saveMilestone()"><i class="fa fa-save me-2"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Search Results Overlay -->
+<div class="search-results-overlay" id="searchOverlay" style="display:none">
+  <div class="search-results-box">
+    <div class="search-results-header">
+      <span>Search Results</span>
+      <button onclick="document.getElementById('searchOverlay').style.display='none'"><i class="fa fa-times"></i></button>
+    </div>
+    <div id="searchResultsList"></div>
+  </div>
+</div>
+
+<!-- Reminders Panel -->
+<div class="reminders-panel" id="remindersPanel" style="display:none">
+  <div class="reminders-panel-header">
+    <span><i class="fa fa-bell me-2"></i>Reminders</span>
+    <button onclick="document.getElementById('remindersPanel').style.display='none'"><i class="fa fa-times"></i></button>
+  </div>
+  <div id="remindersList"></div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/export.js"></script>
+<script src="js/import.js"></script>
+<script src="js/reminders.js"></script>
+<script src="js/statistics.js"></script>
+<script src="js/sample-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
