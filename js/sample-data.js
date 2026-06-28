@@ -20,7 +20,8 @@ const SampleData = (() => {
 
   function load() {
     // ---- SETTINGS ----
-    Storage.saveSettings({ babyName:'Sofia', birthday: daysAgo(47), weight:'4.2', feedInterval:2, darkMode:true, notifSound:true });
+    Storage.saveSettings({ babyName:'Yoel', birthday: '06/26/2026'//daysAgo(47)
+, weight:'4.2', feedInterval:2, darkMode:true, notifSound:true });
 
     // ---- FEEDING ----
     const feedTypes = ['Left Breast','Right Breast','Bottle Breastmilk','Formula'];
